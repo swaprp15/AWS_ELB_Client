@@ -42,10 +42,13 @@ public class AWSHelper {
 
 	private static final Log log = LogFactory.getLog(AWSHelper.class);
 
-	public AWSHelper(String awsAccessKey, String awsSecretKey) {
+	public AWSHelper(String awsAccessKey, String awsSecretKey,
+			String availabilityZone) {
 		this.awsAccessKey = awsAccessKey;
 		this.awsSecretKey = awsSecretKey;
-		
+
+		this.availabilityZone = availabilityZone;
+
 		awsCredentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
 		clientConfiguration = new ClientConfiguration();
 	}
@@ -79,6 +82,7 @@ public class AWSHelper {
 			return clbResult.getDNSName();
 		} catch (Exception e) {
 			log.error("Could not create load balancer : " + name + ".");
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -160,7 +164,7 @@ public class AWSHelper {
 	 * @param loadBalancerName
 	 * @return description of the load balancer
 	 */
-	private LoadBalancerDescription getLoadBalancerDescription(
+	public LoadBalancerDescription getLoadBalancerDescription(
 			String loadBalancerName) {
 		List<String> loadBalancers = new ArrayList<String>();
 
