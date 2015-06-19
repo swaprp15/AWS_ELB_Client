@@ -70,77 +70,85 @@ public class Main {
 
 			AWSHelper awsHelper = new AWSHelper(accessKey, secretKey,
 					availabilityZone);
+			//
+			// String loadBalancerName = "firstLB";
+			// int instancePort = 80;
+			// // String instanceProtocol = "HTTP";
+			// int loadBalancerPort = 80;
+			// String protocol = "HTTP";
+			// // String availabilityZone = "ap-southeast-1b";
+			//
+			// Listener listener1 = new Listener(protocol, loadBalancerPort,
+			// instancePort);
+			// List<Listener> listeners = new ArrayList<Listener>();
+			// listeners.add(listener1);
+			//
+			// instancePort = 9090;
+			// // String instanceProtocol = "HTTP";
+			// loadBalancerPort = 8090;
+			// protocol = "HTTP";
+			// // String availabilityZone = "ap-southeast-1b";
+			//
+			// Listener listener2 = new Listener(protocol, loadBalancerPort,
+			// instancePort);
+			// listeners.add(listener2);
+			//
+			//
+			// String dnsNameOfLoadBalancer = awsHelper.createLoadBalancer(
+			// loadBalancerName, listeners);
+			//
+			// if (dnsNameOfLoadBalancer != null)
+			// System.out.println("Load balancer " + dnsNameOfLoadBalancer
+			// + " created.");
+			// else
+			// System.out.println("Failed to create load balancer.");
+			// // For now I have hard coded instance ID.
+			// // We can use listRunningInstances() method of EC2 class to get
+			// the
+			// // list of all running instances and choose
+			// Instance instance = new Instance();
+			// instance.setInstanceId("i-d27b0022");
+			//
+			// List<Instance> instances = new ArrayList<Instance>();
+			// instances.add(instance);
+			//
+			// awsHelper.registerInstancesToLoadBalancer(loadBalancerName,
+			// instances);
+			//
+			// LoadBalancerDescription lbDescription = awsHelper
+			// .getLoadBalancerDescription(loadBalancerName);
+			//
+			// instances = lbDescription.getInstances();
+			//
+			// System.out.println("Attached Instanes");
+			//
+			// for (Instance inst : instances) {
+			// System.out.println(inst.getInstanceId());
+			// }
+			//
+			//
+			// List<ListenerDescription> listenerDescriptions =
+			// lbDescription.getListenerDescriptions();
+			//
+			// System.out.println("Attached listeners.");
+			//
+			// for(ListenerDescription desc : listenerDescriptions)
+			// {
+			// System.out.println(desc.getListener().getInstanceProtocol());
+			// }
+			//
+			// // Comment the following method for the first run to see
+			// instances
+			// // attached to load balancers
+			// awsHelper.deregisterInstancesFromLoadBalancer(loadBalancerName,
+			// instances);
+			//
+			// awsHelper.deleteLoadBalancer(loadBalancerName);
 
-			String loadBalancerName = "firstLB";
-			int instancePort = 80;
-			// String instanceProtocol = "HTTP";
-			int loadBalancerPort = 80;
-			String protocol = "HTTP";
-			// String availabilityZone = "ap-southeast-1b";
+			String ip = "";
 
-			Listener listener1 = new Listener(protocol, loadBalancerPort,
-					instancePort);
-			List<Listener> listeners = new ArrayList<Listener>();
-			listeners.add(listener1);
-			
-			instancePort = 9090;
-			// String instanceProtocol = "HTTP";
-			loadBalancerPort = 8090;
-			protocol = "HTTP";
-			// String availabilityZone = "ap-southeast-1b";
+			Instance instance = awsHelper.getInstanceByIP(ip);
 
-			Listener listener2 = new Listener(protocol, loadBalancerPort,
-					instancePort);
-			listeners.add(listener2);
-			
-
-			String dnsNameOfLoadBalancer = awsHelper.createLoadBalancer(
-					loadBalancerName, listeners);
-
-			if (dnsNameOfLoadBalancer != null)
-				System.out.println("Load balancer " + dnsNameOfLoadBalancer
-						+ " created.");
-			else
-				System.out.println("Failed to create load balancer.");
-			// For now I have hard coded instance ID.
-			// We can use listRunningInstances() method of EC2 class to get the
-			// list of all running instances and choose
-			Instance instance = new Instance();
-			instance.setInstanceId("i-d27b0022");
-
-			List<Instance> instances = new ArrayList<Instance>();
-			instances.add(instance);
-
-			awsHelper.registerInstancesToLoadBalancer(loadBalancerName,
-					instances);
-
-			LoadBalancerDescription lbDescription = awsHelper
-					.getLoadBalancerDescription(loadBalancerName);
-			
-			instances = lbDescription.getInstances();
-
-			System.out.println("Attached Instanes");
-
-			for (Instance inst : instances) {
-				System.out.println(inst.getInstanceId());
-			}
-			
-
-			List<ListenerDescription> listenerDescriptions = lbDescription.getListenerDescriptions();
-
-			System.out.println("Attached listeners.");
-			
-			for(ListenerDescription desc : listenerDescriptions)
-			{
-				System.out.println(desc.getListener().getInstanceProtocol());
-			}
-			
-			// Comment the following method for the first run to see instances
-			// attached to load balancers
-			awsHelper.deregisterInstancesFromLoadBalancer(loadBalancerName,
-					instances);
-
-			awsHelper.deleteLoadBalancer(loadBalancerName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

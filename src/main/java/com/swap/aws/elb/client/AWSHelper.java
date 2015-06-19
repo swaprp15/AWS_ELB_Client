@@ -29,6 +29,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Reservation;
+//import com.amazonaws.services.elasticbeanstalk.model.Instance;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.*;
 
@@ -312,5 +318,48 @@ public class AWSHelper {
 			return null;
 		}
 
+	}
+
+	public Instance getInstanceByIP(String ip) {
+		DescribeInstancesRequest request = new DescribeInstancesRequest();
+
+		List<Filter> filters = new ArrayList<Filter>();
+
+		List<String> ips = new ArrayList<String>();
+		ips.add(ip);
+		Filter ipFilter = new Filter("ip-address", ips);
+
+		request.setFilters(filters);
+
+		AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
+				awsCredentials, clientConfiguration);
+
+		AmazonEC2Client cl = new AmazonEC2Client(awsCredentials);
+
+		DescribeInstancesResult result = cl.describeInstances(request);
+
+		List<Reservation> reservations = result.getReservations();
+
+		for (Reservation reservation : reservations) {
+			List<com.amazonaws.services.ec2.model.Instance> instances = reservation
+					.getInstances();
+
+			for (com.amazonaws.services.ec2.model.Instance instance : instances) {
+
+				System.out.println(instance.getInstanceId());
+
+				return transformInstace(instance);
+			}
+		}
+
+		return null;
+
+	}
+
+	public Instance transformInstace(
+			com.amazonaws.services.ec2.model.Instance ec2Instance) {
+		Instance elbInstance = new Instance();
+		elbInstance.setInstanceId(ec2Instance.getInstanceId());
+		return elbInstance;
 	}
 }
