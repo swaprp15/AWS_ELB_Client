@@ -145,7 +145,7 @@ public class Main {
 			//
 			// awsHelper.deleteLoadBalancer(loadBalancerName);
 
-			String ip = "";
+			String ip = "54.175.82.166";
 
 			Instance instance = awsHelper.getInstanceByIP(ip);
 

@@ -327,8 +327,15 @@ public class AWSHelper {
 
 		List<String> ips = new ArrayList<String>();
 		ips.add(ip);
+		
 		Filter ipFilter = new Filter("ip-address", ips);
+		filters.add(ipFilter);
 
+//		List<String> zones = new ArrayList<String>();
+//		zones.add("us-east-1c");
+//		Filter zoneFilter = new Filter("availability-zone", zones);
+//		filters.add(zoneFilter);
+		
 		request.setFilters(filters);
 
 		AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
@@ -336,7 +343,7 @@ public class AWSHelper {
 
 		AmazonEC2Client cl = new AmazonEC2Client(awsCredentials);
 
-		DescribeInstancesResult result = cl.describeInstances(request);
+		DescribeInstancesResult result = cl.describeInstances(request.withFilters(filters));
 
 		List<Reservation> reservations = result.getReservations();
 
