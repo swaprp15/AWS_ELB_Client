@@ -23,11 +23,13 @@ public class Main {
 	public static String accessKeyConfigName = "AWSAccessKey";
 	public static String secretKeyConfigName = "AWSSecretKey";
 	public static String availabilityZoneConfigName = "availabilityZone";
+	public static String regionConfigName = "region";
 	public static String httpProxyConfigName = "HttpProxy";
 
 	public static String accessKey = null;
 	public static String secretKey = null;
 	public static String availabilityZone = null;
+	public static String region = null;
 	public static String httpProxy = null;
 
 	// Method to read configs file AWS access key, secret key, HTTP proxy etc.
@@ -45,6 +47,7 @@ public class Main {
 			secretKey = properties.getProperty(secretKeyConfigName);
 			availabilityZone = properties
 					.getProperty(availabilityZoneConfigName);
+			region = properties.getProperty(regionConfigName);
 			httpProxy = properties.getProperty(httpProxyConfigName);
 		} catch (IOException e) {
 			throw e;
@@ -69,33 +72,33 @@ public class Main {
 			clientConfiguration.setProxyPort(8080);
 
 			AWSHelper awsHelper = new AWSHelper(accessKey, secretKey,
-					availabilityZone);
+					availabilityZone, region);
 			//
-			// String loadBalancerName = "firstLB";
-			// int instancePort = 80;
+			 String loadBalancerName = "LB-Trial";
+			 int instancePort = 80;
 			// // String instanceProtocol = "HTTP";
-			// int loadBalancerPort = 80;
-			// String protocol = "HTTP";
+			 int loadBalancerPort = 80;
+			 String protocol = "HTTP";
 			// // String availabilityZone = "ap-southeast-1b";
 			//
 			// Listener listener1 = new Listener(protocol, loadBalancerPort,
 			// instancePort);
-			// List<Listener> listeners = new ArrayList<Listener>();
+			 List<Listener> listeners = new ArrayList<Listener>();
 			// listeners.add(listener1);
 			//
 			// instancePort = 9090;
 			// // String instanceProtocol = "HTTP";
 			// loadBalancerPort = 8090;
-			// protocol = "HTTP";
+			 protocol = "HTTP";
 			// // String availabilityZone = "ap-southeast-1b";
 			//
-			// Listener listener2 = new Listener(protocol, loadBalancerPort,
-			// instancePort);
-			// listeners.add(listener2);
+			 Listener listener2 = new Listener(protocol, loadBalancerPort,
+			 instancePort);
+			 listeners.add(listener2);
 			//
 			//
-			// String dnsNameOfLoadBalancer = awsHelper.createLoadBalancer(
-			// loadBalancerName, listeners);
+			 String dnsNameOfLoadBalancer = awsHelper.createLoadBalancer(
+			 loadBalancerName, listeners);
 			//
 			// if (dnsNameOfLoadBalancer != null)
 			// System.out.println("Load balancer " + dnsNameOfLoadBalancer
@@ -145,9 +148,15 @@ public class Main {
 			//
 			// awsHelper.deleteLoadBalancer(loadBalancerName);
 
-			String ip = "54.175.82.166";
-
-			Instance instance = awsHelper.getInstanceByIP(ip);
+//			String ip = "54.175.82.166";
+//
+//			long start = System.currentTimeMillis();
+//			
+//			Instance instance = awsHelper.getInstanceByIP(ip);
+//			
+//			long stop = System.currentTimeMillis();
+//			
+//			System.out.println("Time taken : " + ( stop - start) );
 
 		} catch (Exception e) {
 			e.printStackTrace();

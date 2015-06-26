@@ -42,6 +42,7 @@ public class AWSHelper {
 	private String awsAccessKey;
 	private String awsSecretKey;
 	private String availabilityZone;
+	private String region;
 
 	private BasicAWSCredentials awsCredentials;
 	private ClientConfiguration clientConfiguration;
@@ -49,12 +50,13 @@ public class AWSHelper {
 	private static final Log log = LogFactory.getLog(AWSHelper.class);
 
 	public AWSHelper(String awsAccessKey, String awsSecretKey,
-			String availabilityZone) {
+			String availabilityZone, String region) {
 		this.awsAccessKey = awsAccessKey;
 		this.awsSecretKey = awsSecretKey;
 
 		this.availabilityZone = availabilityZone;
-
+		this.region = region;
+		
 		awsCredentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
 		clientConfiguration = new ClientConfiguration();
 	}
@@ -82,6 +84,8 @@ public class AWSHelper {
 			AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 					awsCredentials, clientConfiguration);
 
+			lbClient.setEndpoint("elasticloadbalancing." + this.region + ".amazonaws.com");
+			
 			CreateLoadBalancerResult clbResult = lbClient
 					.createLoadBalancer(createLoadBalancerRequest);
 
@@ -323,27 +327,27 @@ public class AWSHelper {
 	public Instance getInstanceByIP(String ip) {
 		DescribeInstancesRequest request = new DescribeInstancesRequest();
 
-		List<Filter> filters = new ArrayList<Filter>();
-
-		List<String> ips = new ArrayList<String>();
-		ips.add(ip);
-		
-		Filter ipFilter = new Filter("ip-address", ips);
-		filters.add(ipFilter);
+//		List<Filter> filters = new ArrayList<Filter>();
+//
+//		List<String> ips = new ArrayList<String>();
+//		ips.add(ip);
+//		
+//		Filter ipFilter = new Filter("ip-address", ips);
+//		filters.add(ipFilter);
 
 //		List<String> zones = new ArrayList<String>();
 //		zones.add("us-east-1c");
 //		Filter zoneFilter = new Filter("availability-zone", zones);
 //		filters.add(zoneFilter);
 		
-		request.setFilters(filters);
+		//request.setFilters(filters);
 
 		AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 				awsCredentials, clientConfiguration);
 
 		AmazonEC2Client cl = new AmazonEC2Client(awsCredentials);
 
-		DescribeInstancesResult result = cl.describeInstances(request.withFilters(filters));
+		DescribeInstancesResult result = cl.describeInstances(request);
 
 		List<Reservation> reservations = result.getReservations();
 
@@ -353,9 +357,11 @@ public class AWSHelper {
 
 			for (com.amazonaws.services.ec2.model.Instance instance : instances) {
 
+				
+				
 				System.out.println(instance.getInstanceId());
 
-				return transformInstace(instance);
+				//return transformInstace(instance);
 			}
 		}
 
