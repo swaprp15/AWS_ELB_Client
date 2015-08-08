@@ -19,16 +19,29 @@
 
 package com.swap.aws.elb.client;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SimpleTimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.metrics.RequestMetricCollector;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.amazonaws.services.cloudwatch.model.ListMetricsResult;
+import com.amazonaws.services.cloudwatch.model.Metric;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -48,6 +61,8 @@ public class AWSHelper {
 	private ClientConfiguration clientConfiguration;
 
 	private static final Log log = LogFactory.getLog(AWSHelper.class);
+	
+	private AmazonCloudWatchClient cloudWatchClient;
 
 	public AWSHelper(String awsAccessKey, String awsSecretKey,
 			String availabilityZone, String region) {
@@ -59,6 +74,8 @@ public class AWSHelper {
 		
 		awsCredentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
 		clientConfiguration = new ClientConfiguration();
+		
+		cloudWatchClient  = new AmazonCloudWatchClient(awsCredentials, clientConfiguration);
 	}
 
 	/**
@@ -89,6 +106,8 @@ public class AWSHelper {
 			CreateLoadBalancerResult clbResult = lbClient
 					.createLoadBalancer(createLoadBalancerRequest);
 
+			System.out.println("Created load balancer : " + clbResult.getDNSName() );
+			
 			return clbResult.getDNSName();
 		} catch (Exception e) {
 			log.error("Could not create load balancer : " + name + ".");
@@ -110,6 +129,8 @@ public class AWSHelper {
 
 			AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 					awsCredentials, clientConfiguration);
+			
+			lbClient.setEndpoint("elasticloadbalancing." + this.region + ".amazonaws.com");
 
 			lbClient.deleteLoadBalancer(deleteLoadBalancerRequest);
 		} catch (Exception e) {
@@ -133,7 +154,9 @@ public class AWSHelper {
 
 			AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 					awsCredentials, clientConfiguration);
-
+			
+			lbClient.setEndpoint("elasticloadbalancing." + this.region + ".amazonaws.com");
+			
 			RegisterInstancesWithLoadBalancerResult result = lbClient
 					.registerInstancesWithLoadBalancer(registerInstancesWithLoadBalancerRequest);
 		} catch (Exception e) {
@@ -158,6 +181,8 @@ public class AWSHelper {
 
 			AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 					awsCredentials, clientConfiguration);
+			
+			lbClient.setEndpoint("elasticloadbalancing." + this.region + ".amazonaws.com");
 
 			DeregisterInstancesFromLoadBalancerResult result = lbClient
 					.deregisterInstancesFromLoadBalancer(deregisterInstancesFromLoadBalancerRequest);
@@ -186,6 +211,8 @@ public class AWSHelper {
 		AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 				awsCredentials, clientConfiguration);
 
+		lbClient.setEndpoint("elasticloadbalancing." + this.region + ".amazonaws.com");
+		
 		DescribeLoadBalancersResult result = lbClient
 				.describeLoadBalancers(describeLoadBalancersRequest);
 
@@ -243,6 +270,8 @@ public class AWSHelper {
 
 			AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 					awsCredentials, clientConfiguration);
+			
+			lbClient.setEndpoint("elasticloadbalancing." + this.region + ".amazonaws.com");
 
 			lbClient.createLoadBalancerListeners(createLoadBalancerListenersRequest);
 		} catch (Exception e) {
@@ -279,6 +308,8 @@ public class AWSHelper {
 
 			AmazonElasticLoadBalancingClient lbClient = new AmazonElasticLoadBalancingClient(
 					awsCredentials, clientConfiguration);
+			
+			lbClient.setEndpoint("elasticloadbalancing." + this.region + ".amazonaws.com");
 
 			lbClient.deleteLoadBalancerListeners(deleteLoadBalancerListenersRequest);
 
@@ -367,6 +398,61 @@ public class AWSHelper {
 
 		return null;
 
+	}
+	
+	public int getSurgeRequestCount(String loadBalancerName, String region)
+	{
+		int count = 0;
+		
+		try
+		{
+			GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
+			request.setMetricName("RequestCount");
+			request.setNamespace("AWS/ELB");
+			
+			Date currentTime = new DateTime(DateTimeZone.UTC).toDate();
+			Date pastTime = new DateTime(DateTimeZone.UTC).minusMinutes(120).toDate();
+			
+			request.setStartTime(pastTime);
+			request.setEndTime(currentTime);
+
+			request.setPeriod(60);
+			
+			HashSet<String> statistics = new HashSet<String>();
+			statistics.add("Sum");
+			request.setStatistics(statistics);
+
+			HashSet<Dimension> dimensions = new HashSet<Dimension>();			
+			Dimension loadBalancerDimension = new Dimension();
+			loadBalancerDimension.setName("LoadBalancerName");
+			loadBalancerDimension.setValue("LB-1");
+			dimensions.add(loadBalancerDimension);
+			request.setDimensions(dimensions);
+			
+			cloudWatchClient.setEndpoint(String.format("monitoring.%s.amazonaws.com", region));
+
+//			ListMetricsResult result = cloudWatchClient.listMetrics();
+//			
+//			List<Metric> metrics = result.getMetrics();
+//			
+//			for(Metric metric : metrics)
+//			{
+//				System.out.println(metric.getMetricName());
+//			}
+			GetMetricStatisticsResult result = cloudWatchClient.getMetricStatistics(request);
+			
+			List<Datapoint> dataPoints = result.getDatapoints();
+			
+			if(dataPoints != null && dataPoints.size() > 0)
+			{
+				count = dataPoints.get(0).getSum().intValue();
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return count;
 	}
 
 	public Instance transformInstace(

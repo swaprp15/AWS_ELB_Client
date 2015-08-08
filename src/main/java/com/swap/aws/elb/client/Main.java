@@ -73,32 +73,38 @@ public class Main {
 
 			AWSHelper awsHelper = new AWSHelper(accessKey, secretKey,
 					availabilityZone, region);
-			//
-			 String loadBalancerName = "LB-Trial";
-			 int instancePort = 80;
-			// // String instanceProtocol = "HTTP";
-			 int loadBalancerPort = 80;
-			 String protocol = "HTTP";
-			// // String availabilityZone = "ap-southeast-1b";
-			//
-			// Listener listener1 = new Listener(protocol, loadBalancerPort,
-			// instancePort);
-			 List<Listener> listeners = new ArrayList<Listener>();
-			// listeners.add(listener1);
-			//
-			// instancePort = 9090;
-			// // String instanceProtocol = "HTTP";
-			// loadBalancerPort = 8090;
-			 protocol = "HTTP";
-			// // String availabilityZone = "ap-southeast-1b";
-			//
-			 Listener listener2 = new Listener(protocol, loadBalancerPort,
-			 instancePort);
-			 listeners.add(listener2);
-			//
-			//
-			 String dnsNameOfLoadBalancer = awsHelper.createLoadBalancer(
-			 loadBalancerName, listeners);
+			
+			System.out.println("Region used: "+ region);
+			System.out.println("Avail zone used: "+ availabilityZone);
+			
+			
+			
+//			//
+//			 String loadBalancerName = "single-cartridge-app-my-php-php";
+//			 int instancePort = 80;
+//			// // String instanceProtocol = "HTTP";
+//			 int loadBalancerPort = 80;
+//			 String protocol = "HTTP";
+//			// // String availabilityZone = "ap-southeast-1b";
+//			//
+//			// Listener listener1 = new Listener(protocol, loadBalancerPort,
+//			// instancePort);
+//			 List<Listener> listeners = new ArrayList<Listener>();
+//			// listeners.add(listener1);
+//			//
+//			// instancePort = 9090;
+//			// // String instanceProtocol = "HTTP";
+//			// loadBalancerPort = 8090;
+//			 protocol = "HTTP";
+//			// // String availabilityZone = "ap-southeast-1b";
+//			//
+//			 Listener listener2 = new Listener(protocol, loadBalancerPort,
+//			 instancePort);
+//			 listeners.add(listener2);
+//			//
+//			//
+//			 String dnsNameOfLoadBalancer = awsHelper.createLoadBalancer(
+//			 loadBalancerName, listeners);
 			//
 			// if (dnsNameOfLoadBalancer != null)
 			// System.out.println("Load balancer " + dnsNameOfLoadBalancer
@@ -109,14 +115,15 @@ public class Main {
 			// // We can use listRunningInstances() method of EC2 class to get
 			// the
 			// // list of all running instances and choose
-			// Instance instance = new Instance();
-			// instance.setInstanceId("i-d27b0022");
-			//
-			// List<Instance> instances = new ArrayList<Instance>();
-			// instances.add(instance);
-			//
-			// awsHelper.registerInstancesToLoadBalancer(loadBalancerName,
-			// instances);
+//			 Instance instance = new Instance();
+//			 instance.setInstanceId("i-0bb89bc7");
+//			
+//			 List<Instance> instances = new ArrayList<Instance>();
+//			 instances.add(instance);
+//			//
+//			 
+//			 awsHelper.registerInstancesToLoadBalancer(loadBalancerName,
+//			 instances);
 			//
 			// LoadBalancerDescription lbDescription = awsHelper
 			// .getLoadBalancerDescription(loadBalancerName);
@@ -158,6 +165,10 @@ public class Main {
 //			
 //			System.out.println("Time taken : " + ( stop - start) );
 
+			int count = awsHelper.getSurgeRequestCount("LB-1", region);
+			
+			System.out.println("Count : " + count);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
